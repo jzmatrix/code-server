@@ -1,6 +1,6 @@
 FROM codercom/code-server:4.4.0
 ################################################################################
-RUN apt -y install golang
+RUN apt-get -y install golang
 
 RUN /usr/bin/code-server --install-extension formulahendry.code-runner && \
     /usr/bin/code-server --install-extension genuitecllc.codetogether && \
