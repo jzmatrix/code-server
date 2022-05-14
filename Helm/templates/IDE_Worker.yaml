@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: {{ .Values.namespace | quote }}
+  name: {{ .Values.serviceName | quote }}
+spec:
+  serviceName: {{ .Values.serviceName | quote }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.serviceName | quote }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.serviceName | quote }}
+    spec:
+      containers:
+      - image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        name: {{ .Values.serviceName | quote }}
+        imagePullPolicy: Always
+        env:
+          - name: PASSWORD
+            value: {{ .Values.idePassword | quote }}
+        ports:
+        - containerPort: 8080
+          name: ide-worker
+        volumeMounts:
+          - name: ide-data
+            mountPath: /data
+          - name: ide-projects
+            mountPath: /home/coder/project/
+      volumes:
+        - name: ide-data
+          persistentVolumeClaim:
+            claimName: ide-data
+        - name: ide-projects
+          persistentVolumeClaim:
+            claimName: ide-projects

@@ -1,0 +1,22 @@
+default_registry('hub.ziemba.net')
+registry = 'hub.ziemba.net'
+timestamp = str(local("powershell get-date -format 'yyyyMMdd_HHmm'")).strip()
+#
+docker_build(registry + '/minecraft-bedrock-server',
+            './Docker',
+            dockerfile='Docker/Dockerfile',
+            extra_tag=registry + '/minecraft-bedrock-server:' + timestamp,
+            )
+
+# yaml = helm(
+#   './HelmTilt',
+#   name='minecraft-bedrock-server',
+#   namespace='default',
+#   values=['./HelmTilt/values.yaml'],
+#   set=['service.port=19132', 'ingress.enabled=true']
+#   )
+# k8s_yaml(yaml)
+
+
+# k8s_yaml('K8S')
+k8s_yaml(helm('./HelmTilt'))

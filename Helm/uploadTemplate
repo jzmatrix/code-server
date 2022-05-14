@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+################################################################################
+my $docker = `which docker`; chomp $docker;
+my $pwd = `pwd`; chomp $pwd;
+$baseURL = "https://www.minecraft.net/en-us/download/server/bedrock";
+my $curl = `which curl`; chomp $curl;
+if (!$curl)
+{
+    die ("Unable to locate Curl");
+}
+my $dlCMD = "$curl -s -o /tmp/mcDL -H \"user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36\" \"$baseURL\"";
+`$dlCMD`;
+################################################################################
+open (IN, "/tmp/mcDL");
+while (<IN>)
+{
+    chomp;
+    my $line = $_;
+    #print "LINE :: $line\n";
+    if ($line =~ '(https://minecraft.azureedge.net/bin-linux/bedrock-server-([.0-9]*).zip)')
+    {
+        $dlURL = $1;
+        $dlVer = $2;
+    }
+}
+close (IN);
+print "DL URL: $dlURL\n";
+# print "DL :: $dlURL\n";
+################################################################################
+open (IN, $pwd . "/Docker/Dockerfile.tmpl");
+open (OUT, ">" . $pwd . "/Docker/Dockerfile");
+my $saveStr = "";
+while (<IN>)
+{
+    $saveStr .= $_;
+}
+close (IN);
+$saveStr =~ s/&URI&/$dlURL/g;
+print OUT $saveStr;
+close (OUT);
+################################################################################
+print "Building $dlVer\n";
+# $dlVer =~ s/\./_/g;
+$buildCMD = "\"$docker\" build Docker -t hub.ziemba.net/minecraft-bedrock-server:$dlVer";
+# print "DOCKER :: $docker :: $dlVer :: $buildCMD\n";
+`$buildCMD`;
+################################################################################
+print "Uploading $dlVer\n";
+$pushCMD = "\"$docker\" push  hub.ziemba.net/minecraft-bedrock-server:$dlVer";
+`$pushCMD`;
