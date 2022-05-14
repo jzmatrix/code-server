@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# Copy config files
-cp /config-ssh/ssh.public /root/.ssh/id_rsa.pub
-cp /config-ssh/ssh.private /root/.ssh/id_rsa
-chmod 600 /root/.ssh/id_rsa
+# Can't install using pipeline
+apt-get -y install golang
 
-/usr/sbin/sshd -D
+/usr/bin/entrypoint.sh --bind-addr 0.0.0.0:8080  .
