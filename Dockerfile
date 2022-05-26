@@ -1,6 +1,9 @@
 FROM codercom/code-server:4.4.0
 ################################################################################
-RUN /usr/bin/code-server --install-extension formulahendry.code-runner && \
+RUN apt update && \
+    apt -y upgrade && \
+    apt -y install perltidy && \
+    /usr/bin/code-server --install-extension formulahendry.code-runner && \
     /usr/bin/code-server --install-extension genuitecllc.codetogether && \
     /usr/bin/code-server --install-extension golang.go && \
     /usr/bin/code-server --install-extension jorol.perl-completions && \
