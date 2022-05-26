@@ -15,7 +15,8 @@ jobs:
       - image: docker:18.06.3-ce-git
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Prepare Environment
           command: |
@@ -43,11 +44,6 @@ jobs:
           command: |
             docker login --username ${DOCKER_USERNAME} -p "${DOCKER_PASSWORD}"
       - run:
-          name: Load Docker image layer cache
-          command: |
-            set +o pipefail
-            docker load -i /caches/app.tar | true
-      - run:
           name: Build application Docker image
           command: |
             TS=`cat /tmp/timestamp`
@@ -62,7 +58,3 @@ jobs:
             docker push jzmatrix/code-server:latest
             ##
             helm upgrade code-server Helm/ --set idePassword="${IDE_PASSWORD}" --set image.tag=$TS
-      - save_cache:
-          key: v1-{{ .Branch }}-{{ epoch }}
-          paths:
-            - /caches/app.tar
